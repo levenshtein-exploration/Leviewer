@@ -46,4 +46,3 @@ var setup_selector = function () {
 };
 
 setup_selector();
-

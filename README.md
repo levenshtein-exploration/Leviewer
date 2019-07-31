@@ -18,10 +18,11 @@ To add a new dataset, you have to add the tsv file in the data directory and add
 
 The tsv format is as follow
 ```
-  word k1 k2 k3 ...
+  word1 k1 k2 k3 ...
+  word2 k1 k2 k3 ...
 ```
 
-To use the tsv parser correctly from other parts of the webpage, please refer to (the wiki)[https://github.com/levenshtein-exploration/Leviewier/wiki/File-loader-documentation]
+To use the tsv parser correctly from other parts of the webpage, please refer to [the wiki](https://github.com/levenshtein-exploration/Leviewier/wiki/File-loader-documentation)
 
 
 ### D3js data visualzation
