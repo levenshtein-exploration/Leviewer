@@ -5,3 +5,7 @@
   height: 40px;
   background-color: grey;
 }
+
+#experiment {
+  min-width: 300px;
+}
