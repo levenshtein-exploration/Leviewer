@@ -1,1 +1,5 @@
 trivial.tsv
+trivial2.tsv
+resultats.tsv
+a2n5k5.tsv
+a2n6k5.tsv
