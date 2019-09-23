@@ -22,7 +22,7 @@ var data_listener = function(event) {
 					// Display attributes:
 					x: x_position,
 					y: 1/element,
-					size: 0.2,
+					size: 1,
 					color: '#f00'
 				})
 				if(element!=row[1]){

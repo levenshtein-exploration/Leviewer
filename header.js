@@ -11,7 +11,7 @@ var setup_selector = function () {
   .then(res=>{
     res = res.split("\n");
     for (let line of res) {
-      line = line.trim();
+      line = line.replace(/(\r\n|\n|\r)/gm, "");
       if (line.length > 0) {
         selector.innerHTML += "<option value='" + line + "'>" + line + "</option>";
       }
@@ -32,6 +32,7 @@ var setup_selector = function () {
     fetch("/data/" + value).then(data=>{return data.text()}).then(res=>{
       res = res.split("\n");
       for (let line of res) {
+        line = line.replace(/(\r\n|\n|\r)/gm, "");
         if (line.length == 0)
           continue;
         _DATA_LOADED.push(line.split("\t"));
