@@ -61,6 +61,7 @@ class Graph {
   }
 }
 
+// ----- Create the graph and prepare update -----
 g = new Graph("container");
 window.onresize = () => {
   g.resize();
@@ -68,6 +69,7 @@ window.onresize = () => {
 };
 
 
+// ----- Load data into the graph on event -----
 var data_listener = function(event) {
   // read the number of different k values
   num_diff_k = event.data[0].length - 1;
@@ -93,13 +95,17 @@ var data_listener = function(event) {
 
   // Create nodes by column
   for (let k=0 ; k<num_diff_k ; k++) {
-    g.addNode({
-      id: k+1,
-      x: (k+1)/(num_diff_k+1),
-      y: 0.5,
-      size: 0.2,
-      color: '#f00'
-    });
+    let idx = 1;
+    for (let key of values_per_k[k].keys()) {
+      g.addNode({
+        id: (k+1) + "_" + key,
+        label: key,
+        overlay: values_per_k[k].get(key).join("\n"),
+        x: (k+1)/(num_diff_k+1),
+        y: 1 - idx/(values_per_k[k].size+1)
+      });
+      idx += 1;
+    }
   }
 
   g.repaint();
