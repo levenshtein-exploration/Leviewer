@@ -5,15 +5,19 @@ class Graph {
     // Create the canvas
     this.div = document.getElementById(div_id);
     this.canvas = document.createElement("canvas");
-    this.canvas.style.width = window.innerWidth + "px";
-    this.canvas.style.height = '500px';
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = 500;
+    this.resize();
     this.div.appendChild(this.canvas);
     this.ctx = this.canvas.getContext("2d");
     // Graph objects
     this.nodes = [];
     this.edges = [];
+  }
+
+  resize() {
+    this.canvas.style.width = window.innerWidth + "px";
+    this.canvas.style.height = '500px';
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = 500;
   }
 
   addNode(node) {
@@ -58,6 +62,10 @@ class Graph {
 }
 
 g = new Graph("container");
+window.onresize = () => {
+  g.resize();
+  g.repaint();
+};
 
 
 var data_listener = function(event) {
