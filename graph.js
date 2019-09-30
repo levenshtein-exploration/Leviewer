@@ -41,7 +41,7 @@ class Graph {
   resize(height=500) {
     let main = document.getElementById("main_screen");
     let side = document.getElementById("side");
-    let computed_width = main.offsetWidth - side.offsetWidth - 5;
+    let computed_width = main.offsetWidth - side.offsetWidth - 50;
     this.div.style.width = computed_width + "px";
     this.canvas.style.width = computed_width + "px";
     side.style.height = height + 'px';
@@ -50,10 +50,11 @@ class Graph {
     this.canvas.height = height * this.setup.zoomFactor;
   }
 
-  addNode(node) {
+  addNode(node, overlayRefreshment=true) {
     this.nodes.push(node);
     this.nodes_by_idx.set(node.id, node);
-    this.refreshOverlay();
+    if (overlayRefreshment)
+      this.refreshOverlay();
   }
 
   addEdge(node1, node2) {
@@ -144,39 +145,57 @@ class Graph {
     ctx.fillStyle = "#FFFFFF"
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Paint edges
-    ctx.strokeStyle = this.setup.edgeFillStyle;
-    ctx.lineWidth = this.setup.edgeWidth;
+    let that = this;
+    let paint_callback = function* () {
+      // Paint edges
+      ctx.strokeStyle = that.setup.edgeFillStyle;
+      ctx.lineWidth = that.setup.edgeWidth;
 
-    for (let edge of this.edges) {
-      let node1 = edge[0];
-      let node2 = edge[1];
-      ctx.moveTo(node1.x * this.canvas.width, node1.y * this.canvas.height);
-      ctx.lineTo(node2.x * this.canvas.width, node2.y * this.canvas.height);
+      for (let edge of that.edges) {
+        let node1 = edge[0];
+        let node2 = edge[1];
+        ctx.moveTo(node1.x * that.canvas.width, node1.y * that.canvas.height);
+        ctx.lineTo(node2.x * that.canvas.width, node2.y * that.canvas.height);
+        yield true;
+      }
       ctx.stroke();
-    }
 
-    // Paint nodes
-    for (let node of this.nodes) {
-      // Verify properties
-      if (!('x' in node) || !('y' in node) || node.x < 0 || node.x > 1 || node.y < 0 || node.y > 1) {
-        console.log("Wrong values for node " + node + "\nA node must contain a x and a y properties between 0 and 1.");
-        continue;
+      // Paint nodes
+      for (let node of that.nodes) {
+        // Verify properties
+        if (!('x' in node) || !('y' in node) || node.x < 0 || node.x > 1 || node.y < 0 || node.y > 1) {
+          console.log("Wrong values for node " + node + "\nA node must contain a x and a y properties between 0 and 1.");
+          continue;
+        }
+
+        // Draw the node
+        ctx.fillStyle = that.setup.nodeFillStyle;
+        ctx.beginPath();
+        ctx.arc(
+          node.x * that.canvas.width,
+          node.y * that.canvas.height,
+          that.setup.nodeSize/2,
+          0,
+          Math.PI * 2,
+          true
+        );
+        ctx.fill();
+        yield true;
+      }
+    };
+
+    let generator = paint_callback();
+    let partial_refresh = () => {
+      for (let idx=0 ; idx<200 ; idx++) {
+        if (!generator)
+          break;
+        generator.next();
       }
 
-      // Draw the node
-      ctx.fillStyle = this.setup.nodeFillStyle;
-      ctx.beginPath();
-      ctx.arc(
-        node.x * this.canvas.width,
-        node.y * this.canvas.height,
-        this.setup.nodeSize/2,
-        0,
-        Math.PI * 2,
-        true
-      );
-      ctx.fill();
-    }
+      if (generator)
+        window.requestAnimationFrame(partial_refresh);
+    };
+    window.requestAnimationFrame(partial_refresh);
   }
 }
 
@@ -231,7 +250,7 @@ var data_listener = function(event) {
         y: 1 - idx/(values_per_k[k].size+1)
       }
 
-      g.addNode(node);
+      g.addNode(node, false);
       idx += 1;
     }
   }
@@ -252,6 +271,7 @@ var data_listener = function(event) {
     }
   }
 
+  g.refreshOverlay();
   g.repaint();
 }
 
