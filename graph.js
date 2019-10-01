@@ -5,10 +5,19 @@ class Graph {
     // Create the canvas
     this.div = document.getElementById(div_id);
     this.canvas = document.createElement("canvas");
+    this.canvas.style["z-index"] = 0;
     this.div.appendChild(this.canvas);
+    // Crete the overlay canvas
+    this.over_canvas = document.createElement("canvas");
+    this.over_canvas.style["z-index"] = 1;
+    this.div.appendChild(this.over_canvas);
+
     this.ctx = this.canvas.getContext("2d");
     this.setup = this.defaultSetups();
-    this.resize();
+    this.current_size = 500;
+    this.current_node = null;
+
+    this.resize(this.current_size);
     this.reset();
   }
 
@@ -38,16 +47,21 @@ class Graph {
     this.edges_by_node = new Map();
   }
 
-  resize(height=500) {
+  resize(height) {
+    // Blocks to mesure
     let main = document.getElementById("main_screen");
     let side = document.getElementById("side");
+    // Space needed computation
     let computed_width = main.offsetWidth - side.offsetWidth - 50;
+    // Width update
     this.div.style.width = computed_width + "px";
-    this.canvas.style.width = computed_width + "px";
+    this.canvas.style.width = this.over_canvas.style.width = computed_width + "px";
+    this.canvas.width = this.over_canvas.width = computed_width * this.setup.zoomFactor;
+    // Height update
     side.style.height = height + 'px';
-    this.canvas.style.height = height + 'px';
-    this.canvas.width = computed_width * this.setup.zoomFactor;
-    this.canvas.height = height * this.setup.zoomFactor;
+    this.div.style.height = (height) + "px";
+    this.canvas.style.height = this.over_canvas.style.height = height + 'px';
+    this.canvas.height = this.over_canvas.height = height * this.setup.zoomFactor;
   }
 
   addNode(node, overlayRefreshment=true) {
@@ -130,16 +144,20 @@ class Graph {
     // Use nearest node function for triggering events
     let side = document.getElementById("side");
     let update_activated = true;
-    this.canvas.onmousemove = (e) => {
+    let that = this;
+    this.over_canvas.onmousemove = (e) => {
       if (!update_activated)
         return;
       let node = nearest_node(
-        (e.clientX - this.canvas.offsetLeft) / this.canvas.offsetWidth ,
-        (e.clientY - this.canvas.offsetTop) / this.canvas.offsetHeight
+        (e.clientX - that.div.offsetLeft) / that.div.offsetWidth ,
+        (e.clientY - that.div.offsetTop) / that.div.offsetHeight
       );
       side.innerHTML = "<p>" + node.label + "</p><p>" + node.overlay + "</p>";
+      that.current_node = node;
+      that.repaint_overlay();
     };
-    this.canvas.onclick = () => {update_activated = !update_activated;}
+    // Stop the update create by mouse movement by clicking
+    this.over_canvas.onclick = () => {update_activated = !update_activated;}
   }
 
   repaint() {
@@ -201,12 +219,34 @@ class Graph {
     };
     window.requestAnimationFrame(partial_refresh);
   }
+
+  repaint_overlay() {
+    // Clear the screen
+    let ctx = this.over_canvas.getContext("2d");
+    ctx.clearRect(0, 0, this.over_canvas.width, this.over_canvas.height);
+
+    // Repaint the overlay
+    if (this.current_node == null)
+      return;
+    // Draw the node
+    ctx.fillStyle = "#00AA00";
+    ctx.beginPath();
+    ctx.arc(
+      this.current_node.x * this.canvas.width,
+      this.current_node.y * this.canvas.height,
+      this.setup.nodeSize/2,
+      0,
+      Math.PI * 2,
+      true
+    );
+    ctx.fill();
+  }
 }
 
 // ----- Create the graph and prepare update -----
 g = new Graph("container");
 window.onresize = () => {
-  g.resize();
+  g.resize(g.current_size);
   g.repaint();
 };
 
@@ -234,7 +274,8 @@ var data_listener = function(event) {
     }
   }
 
-  g.resize(Math.max(500, values_per_k[num_diff_k-1].size * 30));
+  g.current_size = Math.max(500, values_per_k[num_diff_k-1].size * 30);
+  g.resize(g.current_size);
 
   // Create nodes by column
   for (let k=0 ; k<num_diff_k ; k++) {
