@@ -128,14 +128,18 @@ class Graph {
     }
 
     // Use nearest node function for triggering events
-    let node_text = document.getElementById("node");
+    let side = document.getElementById("side");
+    let update_activated = true;
     this.canvas.onmousemove = (e) => {
+      if (!update_activated)
+        return;
       let node = nearest_node(
         (e.clientX - this.canvas.offsetLeft) / this.canvas.offsetWidth ,
         (e.clientY - this.canvas.offsetTop) / this.canvas.offsetHeight
       );
-      node_text.innerHTML = node.label + "\n" + node.overlay;
+      side.innerHTML = "<p>" + node.label + "</p><p>" + node.overlay + "</p>";
     };
+    this.canvas.onclick = () => {update_activated = !update_activated;}
   }
 
   repaint() {

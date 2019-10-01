@@ -21,6 +21,12 @@
   background-color: grey;
 }
 
+#side p {
+  display: block;
+  margin: auto;
+  text-align: center;
+}
+
 #main_screen * {
   display: inline-block;
   vertical-align: middle;
