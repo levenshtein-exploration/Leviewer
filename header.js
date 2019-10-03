@@ -5,7 +5,7 @@ var setup_selector = function () {
 
   // --- Fill with correct values ---
   // Request the file list file from the server
-  fetch("/data/file_list.txt")
+  fetch("data/file_list.txt")
   .then(data=>{return data.text();})
   // On data, split the response into multiple options in the select.
   .then(res=>{
@@ -29,7 +29,7 @@ var setup_selector = function () {
     let _DATA_LOADED = [];
 
     // Load the corresponding file
-    fetch("/data/" + value).then(data=>{return data.text()}).then(res=>{
+    fetch("data/" + value).then(data=>{return data.text()}).then(res=>{
       res = res.split("\n");
       for (let line of res) {
         line = line.replace(/(\r\n|\n|\r)/gm, "");
