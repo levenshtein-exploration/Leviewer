@@ -149,9 +149,10 @@ class Graph {
       if (!update_activated)
         return;
       let node = nearest_node(
-        (e.clientX - that.div.offsetLeft) / that.div.offsetWidth ,
-        (e.clientY - that.div.offsetTop) / that.div.offsetHeight
+        e.offsetX / that.div.offsetWidth ,
+        e.offsetY / that.div.offsetHeight
       );
+      console.log(e.offsetY);
       side.innerHTML = "<p>" + node.label + "</p><p>" + node.overlay + "</p>";
       that.current_node = node;
       that.repaint_overlay();
