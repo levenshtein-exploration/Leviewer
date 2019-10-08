@@ -2,6 +2,10 @@
 
 A viewer for Levenshtein neighborhood.
 
+## Some data views
+
+(https://levenshtein-exploration.github.io/Leviewer/)
+
 ## Start the server
 
 ```bash
